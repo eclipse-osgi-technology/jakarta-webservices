@@ -19,7 +19,7 @@
     <artifactId>parent</artifactId>
     <version>1.0.0-SNAPSHOT</version>
   </parent>
-  <artifactId>runtime</artifactId>
+  <artifactId>org.eclipse.osgi.technology.webservices.runtime</artifactId>
   <packaging>pom</packaging>
   <modules>
     <module>registrar</module>
