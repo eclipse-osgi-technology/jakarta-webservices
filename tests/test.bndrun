@@ -1,0 +1,19 @@
+-runfw: org.apache.felix.framework
+-runee: JavaSE-17
+
+-runsystemcapabilities: ${native_capability}
+
+-tester: biz.aQute.tester.junit-platform
+
+## Due to bug https://github.com/bndtools/bnd/issues/5539 this must include some junit dependencies
+-runrequires: \
+	bnd.identity;id='org.eclipse.osgi.technology.webservices.tests-tests',\
+	bnd.identity;id='org.eclipse.osgi.technology.webservices.runtime.registrar',\
+	bnd.identity;id='com.sun.xml.ws.jaxws-rt',\
+    bnd.identity;id=junit-jupiter-engine, \
+    bnd.identity;id=junit-platform-launcher
+
+-runtrace: true
+-runproperties:  \
+  tester.trace=true
+	

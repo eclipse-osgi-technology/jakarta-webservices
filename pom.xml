@@ -53,6 +53,7 @@
 
   <modules>
     <module>runtime</module>
+    <module>tests</module>
   </modules>
 
   <dependencyManagement>
