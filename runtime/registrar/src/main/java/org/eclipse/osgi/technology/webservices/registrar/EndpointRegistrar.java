@@ -13,16 +13,20 @@
 package org.eclipse.osgi.technology.webservices.registrar;
 
 import java.lang.annotation.Annotation;
+import java.util.Dictionary;
 import java.util.Map;
 import java.util.Objects;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.eclipse.osgi.technology.webservices.spi.EndpointPublisher;
 import org.osgi.annotation.bundle.Capability;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Constants;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.framework.dto.ServiceReferenceDTO;
 import org.osgi.namespace.implementation.ImplementationNamespace;
 import org.osgi.service.component.AnyService;
@@ -50,7 +54,7 @@ import jakarta.xml.ws.handler.MessageContext;
 /**
  * Endpoint registrar implementation
  */
-@Component(immediate = true, service = { WebserviceServiceRuntime.class })
+@Component(immediate = true, service = {})
 @Capability(namespace = ImplementationNamespace.IMPLEMENTATION_NAMESPACE, //
         name = WebserviceWhiteboardConstants.WEBSERVICE, //
         version = WebserviceWhiteboardConstants.WEBSERVICE_SPECIFICATION_VERSION)
@@ -63,6 +67,9 @@ public class EndpointRegistrar implements WebserviceServiceRuntime {
     private Map<ServiceReference<?>, EndpointRegistration> endpointRegistrations = new ConcurrentHashMap<>();
     private Map<EndpointPublisher, ServiceRanking> endpointPublisherMap = new ConcurrentHashMap<>();
     private ComponentContext context;
+	private final AtomicLong changeCount = new AtomicLong();
+
+	private ServiceRegistration<WebserviceServiceRuntime> registerService;
 
     /**
      * contructor
@@ -74,7 +81,15 @@ public class EndpointRegistrar implements WebserviceServiceRuntime {
     public EndpointRegistrar(@Reference(service = LoggerFactory.class) Logger logger, ComponentContext context) {
         this.logger = logger;
         this.context = context;
+		// WORKAROUND for https://github.com/osgi/osgi/issues/809
+		registerService = context.getBundleContext().registerService(WebserviceServiceRuntime.class, this,
+				getProperties());
+        
     }
+
+	private Dictionary<String, Long> getProperties() {
+		return FrameworkUtil.asDictionary(Map.of(Constants.SERVICE_CHANGECOUNT, changeCount.getAndIncrement()));
+	}
 
     /**
      * adds an endpoint
@@ -103,6 +118,7 @@ public class EndpointRegistrar implements WebserviceServiceRuntime {
         logger.debug("BINDING publisher={} with ranking={}", publisher, ranking);
         endpointPublisherMap.put(publisher, ranking);
         updateAll();
+		registerService.setProperties(getProperties());
     }
 
     /**
@@ -114,6 +130,7 @@ public class EndpointRegistrar implements WebserviceServiceRuntime {
         ServiceRanking ranking = endpointPublisherMap.remove(publisher);
         logger.debug("UNBINDING publisher={} with ranking={}", publisher, ranking);
         updateAll();
+		registerService.setProperties(getProperties());
     }
 
     /**
@@ -131,6 +148,7 @@ public class EndpointRegistrar implements WebserviceServiceRuntime {
             replaced.dispose();
         }
         registration.refresh();
+		registerService.setProperties(getProperties());
     }
 
     /**
@@ -143,6 +161,7 @@ public class EndpointRegistrar implements WebserviceServiceRuntime {
         EndpointRegistration registration = endpointRegistrations.remove(endpointImplementorReference);
         if (registration != null) {
             registration.dispose();
+			registerService.setProperties(getProperties());
         }
     }
 
@@ -159,6 +178,7 @@ public class EndpointRegistrar implements WebserviceServiceRuntime {
             info.dispose();
         }
         updateAll();
+		registerService.setProperties(getProperties());
     }
 
     /**
@@ -173,6 +193,7 @@ public class EndpointRegistrar implements WebserviceServiceRuntime {
             info.dispose();
         }
         updateAll();
+		registerService.setProperties(getProperties());
     }
 
     /**
@@ -186,6 +207,7 @@ public class EndpointRegistrar implements WebserviceServiceRuntime {
         if (info != null) {
             info.dispose();
             updateAll();
+			registerService.setProperties(getProperties());
         }
     }
 
