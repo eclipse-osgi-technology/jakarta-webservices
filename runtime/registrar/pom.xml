@@ -46,5 +46,10 @@
       <artifactId>org.osgi.namespace.implementation</artifactId>
       <version>1.0.0</version>
     </dependency>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.namespace.service</artifactId>
+      <version>1.0.0</version>
+    </dependency>
   </dependencies>
 </project>
