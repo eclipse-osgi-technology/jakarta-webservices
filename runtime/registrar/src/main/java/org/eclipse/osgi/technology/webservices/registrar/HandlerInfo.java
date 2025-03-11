@@ -30,24 +30,26 @@ import jakarta.xml.ws.handler.MessageContext;
 
 final class HandlerInfo {
 
-    static final Comparator<HandlerInfo> SORT_BY_PRIORITY = Comparator.comparingInt(HandlerInfo::getPriority)
-            .reversed();
+    static final Comparator<HandlerInfo> SORT_BY_PRIORITY = Comparator.comparingInt(HandlerInfo::getServiceRank)
+            .reversed().thenComparing(HandlerInfo::getServiceId);
     private final ServiceReference<Handler<? extends MessageContext>> reference;
-    private final int priority;
+    private final int serviceRank;
     private BundleContext bundleContext;
     private Handler<? extends MessageContext> service;
     private Exception lookupError;
     private Exception filterError;
+    private long serviceId;
 
     HandlerInfo(ServiceReference<Handler<? extends MessageContext>> reference, BundleContext bundleContext) {
         this.reference = reference;
         this.bundleContext = bundleContext;
         Integer p = (Integer) reference.getProperty(Constants.SERVICE_RANKING);
         if (p == null) {
-            this.priority = 0;
+            this.serviceRank = 0;
         } else {
-            this.priority = p.intValue();
+            this.serviceRank = p.intValue();
         }
+        serviceId = (Long) reference.getProperty(Constants.SERVICE_ID);
     }
 
     synchronized boolean matches(ServiceReference<?> endpointImplementor) {
@@ -73,8 +75,12 @@ final class HandlerInfo {
         return false;
     }
 
-    int getPriority() {
-        return priority;
+    public int getServiceRank() {
+        return serviceRank;
+    }
+
+    public long getServiceId() {
+        return serviceId;
     }
 
     synchronized void dispose() {
