@@ -10,7 +10,7 @@
  * Contributors:
  *     Christoph Läubrich - initial API and implementation
  *******************************************************************************/
-package org.eclipse.osgi.technology.webservices.tests;
+package org.eclipse.osgi.technology.webservices.integration.tests;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -24,13 +24,13 @@ import java.util.function.Function;
 
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.Condition;
-import org.eclipse.osgi.technology.webservices.tests.binding.WSEchoService;
-import org.eclipse.osgi.technology.webservices.tests.handler.BadHandler;
-import org.eclipse.osgi.technology.webservices.tests.handler.InvalidHandler;
-import org.eclipse.osgi.technology.webservices.tests.handler.TestLogicalHandler;
-import org.eclipse.osgi.technology.webservices.tests.handler.TestSoapHandler;
-import org.eclipse.osgi.technology.webservices.tests.implementor.BadImplementor;
-import org.eclipse.osgi.technology.webservices.tests.implementor.WSEcho;
+import org.eclipse.osgi.technology.webservices.integration.tests.binding.WSEchoService;
+import org.eclipse.osgi.technology.webservices.integration.tests.handler.BadHandler;
+import org.eclipse.osgi.technology.webservices.integration.tests.handler.InvalidHandler;
+import org.eclipse.osgi.technology.webservices.integration.tests.handler.TestLogicalHandler;
+import org.eclipse.osgi.technology.webservices.integration.tests.handler.TestSoapHandler;
+import org.eclipse.osgi.technology.webservices.integration.tests.implementor.BadImplementor;
+import org.eclipse.osgi.technology.webservices.integration.tests.implementor.WSEcho;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.osgi.framework.BundleContext;

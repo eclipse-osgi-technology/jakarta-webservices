@@ -10,7 +10,7 @@
  * Contributors:
  *     Christoph Läubrich - initial API and implementation
  *******************************************************************************/
-package org.eclipse.osgi.technology.webservices.tests.handler;
+package org.eclipse.osgi.technology.webservices.integration.tests.handler;
 
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;

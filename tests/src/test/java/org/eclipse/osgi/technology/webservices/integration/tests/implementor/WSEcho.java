@@ -10,7 +10,7 @@
  * Contributors:
  *     Christoph Läubrich - initial API and implementation
  *******************************************************************************/
-package org.eclipse.osgi.technology.webservices.tests.implementor;
+package org.eclipse.osgi.technology.webservices.integration.tests.implementor;
 
 import jakarta.jws.WebMethod;
 import jakarta.jws.WebParam;

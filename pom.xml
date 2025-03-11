@@ -56,6 +56,15 @@
     <module>tests</module>
   </modules>
 
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>biz.aQute.bnd</groupId>
+        <artifactId>bnd-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
+
   <dependencyManagement>
     <dependencies>
       <dependency>
