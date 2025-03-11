@@ -10,29 +10,29 @@
  * Contributors:
  *     Christoph Läubrich - initial API and implementation
  *******************************************************************************/
-package org.eclipse.osgi.technology.webservices.tests.handler;
+package org.eclipse.osgi.technology.webservices.integration.tests.handler;
+
+import org.osgi.framework.Bundle;
+import org.osgi.framework.ServiceFactory;
+import org.osgi.framework.ServiceRegistration;
 
 import jakarta.xml.ws.handler.Handler;
-import jakarta.xml.ws.handler.MessageContext;
 
 /**
- * An invalid handler as it implements the Handler interface directly
+ * Simulate that a handler service can not be fetched
  */
-public class InvalidHandler implements Handler<MessageContext> {
+@SuppressWarnings("rawtypes")
+public class BadHandler implements ServiceFactory<Handler> {
 
     @Override
-    public void close(MessageContext arg0) {
-
+    public Handler getService(Bundle bundle,
+            ServiceRegistration<Handler> registration) {
+        return null;
     }
 
     @Override
-    public boolean handleFault(MessageContext arg0) {
-        return true;
-    }
-
-    @Override
-    public boolean handleMessage(MessageContext arg0) {
-        return true;
+    public void ungetService(Bundle bundle,
+            ServiceRegistration<Handler> registration, Handler service) {
     }
 
 }

@@ -9,4 +9,4 @@
  *
  * Contributors: Christoph Läubrich - initial API and implementation
  *******************************************************************************/
-package org.eclipse.osgi.technology.webservices.tests;
+package org.eclipse.osgi.technology.webservices.integration.tests;
