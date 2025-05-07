@@ -22,7 +22,7 @@ import jakarta.xml.ws.Action;
 /**
  * a simple service interface
  */
-@WebService(name = "Echo", targetNamespace = "http://webservice.jakartaws.cases.test.osgi.org/")
+@WebService(name = "Echo", targetNamespace = WSEchoService.NS)
 @SOAPBinding(style = SOAPBinding.Style.RPC)
 public interface Echo {
 
@@ -34,7 +34,7 @@ public interface Echo {
      */
     @WebMethod(action = "echo")
     @WebResult(partName = "return")
-    @Action(input = "echo", output = "http://webservice.jakartaws.cases.test.osgi.org/Echo/echoResponse")
+    @Action(input = "echo", output = WSEchoService.NS)
     public String echo(@WebParam(name = "textIn", partName = "textIn")
     String textIn);
 

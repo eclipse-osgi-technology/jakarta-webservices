@@ -255,7 +255,7 @@ public class EndpointRegistrar implements WebserviceServiceRuntime {
                 .toArray(HandlerDTO[]::new);
         runtimeDTO.failedHandlers = handlerMap.values().stream().map(hi -> hi.getFailedDto()).filter(Objects::nonNull)
                 .toArray(FailedHandlerDTO[]::new);
-        runtimeDTO.serviceReference = context.getServiceReference().adapt(ServiceReferenceDTO.class);
+        runtimeDTO.serviceReference = registerService.getReference().adapt(ServiceReferenceDTO.class);
         return runtimeDTO;
     }
 
