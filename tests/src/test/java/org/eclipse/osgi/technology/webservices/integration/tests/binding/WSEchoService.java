@@ -23,12 +23,11 @@ import jakarta.xml.ws.WebServiceClient;
 /**
  * A simple echo extending {@link Service}
  */
-@WebServiceClient(name = "WSEchoService", targetNamespace = "http://implementor.tests.webservices.technology.osgi.eclipse.org/")
+@WebServiceClient(name = "WSEchoService", targetNamespace = WSEchoService.NS)
 public class WSEchoService extends Service {
 
-    private final static QName WSECHOSERVICE_QNAME = new QName(
-            "http://implementor.tests.webservices.technology.osgi.eclipse.org/",
-            "WSEchoService");
+    static final String NS = "http://implementor.tests.integration.webservices.technology.osgi.eclipse.org/";
+    private final static QName WSECHOSERVICE_QNAME = new QName(NS, "WSEchoService");
 
     /**
      * constructor
@@ -46,10 +45,7 @@ public class WSEchoService extends Service {
      */
     @WebEndpoint(name = "EchoPort")
     public Echo getEchoPort() {
-        return super.getPort(
-                new QName("http://implementor.tests.webservices.technology.osgi.eclipse.org/",
-                        "EchoPort"),
-                Echo.class);
+        return super.getPort(new QName(NS, "EchoPort"), Echo.class);
     }
 
 }
