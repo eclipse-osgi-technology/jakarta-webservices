@@ -49,6 +49,7 @@ import org.osgi.service.webservice.runtime.dto.HandlerDTO;
 import org.osgi.service.webservice.runtime.dto.RuntimeDTO;
 import org.osgi.service.webservice.whiteboard.WebserviceWhiteboardConstants;
 
+import jakarta.xml.ws.Endpoint;
 import jakarta.xml.ws.handler.Handler;
 import jakarta.xml.ws.handler.MessageContext;
 
@@ -58,9 +59,11 @@ import jakarta.xml.ws.handler.MessageContext;
 @Component(immediate = true, service = {})
 @Capability(namespace = ImplementationNamespace.IMPLEMENTATION_NAMESPACE, //
         name = WebserviceWhiteboardConstants.WEBSERVICE, //
-        version = WebserviceWhiteboardConstants.WEBSERVICE_SPECIFICATION_VERSION)
+        version = WebserviceWhiteboardConstants.WEBSERVICE_SPECIFICATION_VERSION, uses = { Handler.class,
+                Endpoint.class })
 @Capability(namespace = ServiceNamespace.SERVICE_NAMESPACE, attribute = {ServiceNamespace.CAPABILITY_OBJECTCLASS_ATTRIBUTE
-        + ":List<String>=\"org.osgi.service.webservice.runtime.WebserviceServiceRuntime\";uses:=\"org.osgi.service.webservice.runtime\"" })
+        + ":List<String>=\"org.osgi.service.webservice.runtime.WebserviceServiceRuntime\"" }, uses = {
+                WebserviceServiceRuntime.class, RuntimeDTO.class })
 public class EndpointRegistrar implements WebserviceServiceRuntime {
 
     private Logger logger;
