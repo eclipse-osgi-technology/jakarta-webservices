@@ -29,11 +29,13 @@ import org.eclipse.osgi.technology.webservices.integration.tests.handler.BadHand
 import org.eclipse.osgi.technology.webservices.integration.tests.handler.InvalidHandler;
 import org.eclipse.osgi.technology.webservices.integration.tests.handler.TestLogicalHandler;
 import org.eclipse.osgi.technology.webservices.integration.tests.handler.TestSoapHandler;
+import org.eclipse.osgi.technology.webservices.integration.tests.handler.TestSoapHandler2;
 import org.eclipse.osgi.technology.webservices.integration.tests.implementor.BadImplementor;
 import org.eclipse.osgi.technology.webservices.integration.tests.implementor.WSEcho;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.webservice.runtime.WebserviceServiceRuntime;
 import org.osgi.service.webservice.runtime.dto.EndpointDTO;
@@ -74,6 +76,7 @@ public class JakartaWebserviceWhiteboardTestCase {
                 bundleContext, filter);
         TestSoapHandler soapHandler = registerSoapHandler(bundleContext,
                 filter);
+        registerSoapHandler2(bundleContext, filter);
         String publishAddress = DEFAULT_PUBLISH_ADDRESS + "/wsecho";
         EndpointDTO endpoint = registerEchoEndpoint(bundleContext, id,
                 publishAddress);
@@ -236,6 +239,15 @@ public class JakartaWebserviceWhiteboardTestCase {
                         Map.of(WebserviceWhiteboardConstants.WEBSERVICE_HANDLER_FILTER,
                                 filter, WebserviceWhiteboardConstants.WEBSERVICE_HANDLER_EXTENSION, true,
                                 HANDLER_TYPE, HANDLER_SOAP)));
+        return soapHandler;
+    }
+
+    private TestSoapHandler2 registerSoapHandler2(BundleContext bundleContext, String filter) {
+        TestSoapHandler2 soapHandler = new TestSoapHandler2();
+        bundleContext.registerService(Handler.class, soapHandler,
+                FrameworkUtil.asDictionary(Map.of(WebserviceWhiteboardConstants.WEBSERVICE_HANDLER_FILTER, filter,
+                        WebserviceWhiteboardConstants.WEBSERVICE_HANDLER_EXTENSION, "true", HANDLER_TYPE,
+                        HANDLER_SOAP, Constants.SERVICE_RANKING, 100)));
         return soapHandler;
     }
 
