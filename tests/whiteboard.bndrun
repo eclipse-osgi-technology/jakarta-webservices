@@ -20,6 +20,7 @@
 	bnd.identity;id='org.eclipse.osgi-technology.webservices.org.eclipse.osgi.technology.webservices.tests',\
 	bnd.identity;id='org.eclipse.osgi-technology.webservices.parent-tests',\
 	bnd.identity;id='org.eclipse.osgi-technology.webservices.org.eclipse.osgi.technology.webservices.runtime.registrar',\
+	bnd.identity;id='org.eclipse.osgi-technology.webservices.org.eclipse.osgi.technology.webservices.httpwhiteboard',\
 	bnd.identity;id='com.sun.xml.ws.jaxws-rt',\
 	bnd.identity;id='org.glassfish.hk2.osgi-resource-locator',\
 	bnd.identity;id=junit-jupiter-engine, \
@@ -28,7 +29,7 @@
 -runtrace: true
 -runproperties:  \
 	tester.trace=true, \
-	tester.names = "org.eclipse.osgi.technology.webservices.integration.tests.JakartaWebserviceWhiteboardTestCase"
+	tester.names = "org.eclipse.osgi.technology.webservices.integration.tests.RegisterWithServletWhiteboardTestCase"
 	
 ## will be computed automatically
 -runbundles: 

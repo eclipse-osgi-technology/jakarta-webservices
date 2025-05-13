@@ -15,16 +15,11 @@ package org.eclipse.osgi.technology.webservices.integration.tests;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.net.URL;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 
-import org.assertj.core.api.Assertions;
 import org.assertj.core.api.Condition;
-import org.eclipse.osgi.technology.webservices.integration.tests.binding.WSEchoService;
 import org.eclipse.osgi.technology.webservices.integration.tests.handler.BadHandler;
 import org.eclipse.osgi.technology.webservices.integration.tests.handler.InvalidHandler;
 import org.eclipse.osgi.technology.webservices.integration.tests.handler.TestLogicalHandler;
@@ -42,7 +37,6 @@ import org.osgi.service.webservice.runtime.dto.EndpointDTO;
 import org.osgi.service.webservice.runtime.dto.FailedEndpointDTO;
 import org.osgi.service.webservice.runtime.dto.FailedHandlerDTO;
 import org.osgi.service.webservice.runtime.dto.HandlerDTO;
-import org.osgi.service.webservice.runtime.dto.RuntimeDTO;
 import org.osgi.service.webservice.whiteboard.WebserviceWhiteboardConstants;
 import org.osgi.test.common.annotation.InjectBundleContext;
 import org.osgi.test.common.annotation.InjectService;
@@ -53,7 +47,7 @@ import jakarta.xml.ws.handler.Handler;
 
 @ExtendWith(ServiceExtension.class)
 @ExtendWith(BundleContextExtension.class)
-public class JakartaWebserviceWhiteboardTestCase {
+public class JakartaWebserviceWhiteboardTestCase extends TestBase {
 
     private static final String    HANDLER_BAD                = "bad";
     private static final String    HANDLER_SOAP            = "soap";
@@ -63,7 +57,6 @@ public class JakartaWebserviceWhiteboardTestCase {
     private static final String    DEFAULT_PUBLISH_ADDRESS    = System.getProperty(
             "org.osgi.test.cases.jakartaws.defaultaddress",
             "http://localhost:8579");
-    private static final String    KEY_UUUID                = "UUUID";
     @InjectService(timeout = 10000)
     WebserviceServiceRuntime    runtime;
 
@@ -91,11 +84,7 @@ public class JakartaWebserviceWhiteboardTestCase {
                     return HANDLER_SOAP.equals(
                             dto.serviceReference.properties.get(HANDLER_TYPE));
                 }, "SoapHandler is bound"));
-        WSEchoService service = new WSEchoService(
-                new URL(endpoint.address + "?wsdl"));
-        String textIn = "Hello World";
-        String echo = service.getEchoPort().echo(textIn);
-        assertThat(echo).as("Returned Text").isEqualTo(textIn);
+        assertEndpointEcho(endpoint);
         assertThat(logicalHandler.handledMessages.get()).isEqualTo(2);
         assertThat(soapHandler.handledMessages.get()).isEqualTo(2);
     }
@@ -180,15 +169,6 @@ public class JakartaWebserviceWhiteboardTestCase {
                 .isEqualTo(code);
     }
 
-    private Hashtable<String,Object> getImplementorProperties(
-            String publishAddress) {
-        Hashtable<String,Object> properties = new Hashtable<>();
-        properties.put(WebserviceWhiteboardConstants.WEBSERVICE_ENDPOINT_IMPLEMENTOR, true);
-        properties.put(WebserviceWhiteboardConstants.WEBSERVICE_ENDPOINT_ADDRESS,
-                publishAddress);
-        return properties;
-    }
-
     private void assertFailedHandler(String type, int code) {
         FailedHandlerDTO failedBad = waitForDTO(5, SECONDS, dto -> {
             assertThat(dto.failedHandlers).as("Failed Handler DTO").isNotNull();
@@ -202,33 +182,6 @@ public class JakartaWebserviceWhiteboardTestCase {
         }, "Handler " + type + " not marked as failed");
         assertThat(failedBad.failureCode).as("Failure Code of handler " + type)
                 .isEqualTo(code);
-    }
-
-    private EndpointDTO registerEchoEndpoint(BundleContext bundleContext,
-            String id, String publishAddress) {
-        Hashtable<String,Object> properties = getImplementorProperties(
-                publishAddress);
-        properties.put(KEY_UUUID, id);
-        bundleContext.registerService(WSEcho.class, new WSEcho(), properties);
-        EndpointDTO endpoint = waitForDTO(10, SECONDS, dto -> {
-            assertThat(dto.endpoints).as("Endpoints DTO").isNotNull();
-            for (EndpointDTO ep : dto.endpoints) {
-                assertThat(ep.implementor).as("Endpoint Implementor DTO")
-                        .isNotNull();
-                if (ep.implementor.bundle == bundleContext.getBundle()
-                        .getBundleId()) {
-                    System.out.println("Waiting for " + id + " eq "
-                            + ep.implementor.properties.get(KEY_UUUID));
-                    if (id.equals(ep.implementor.properties.get(KEY_UUUID))) {
-                        assertThat(ep.address).as("Publish Address")
-                                .isNotNull();
-                        return ep;
-                    }
-                }
-            }
-            return null;
-        });
-        return endpoint;
     }
 
     private TestSoapHandler registerSoapHandler(BundleContext bundleContext,
@@ -262,24 +215,9 @@ public class JakartaWebserviceWhiteboardTestCase {
         return logicalHandler;
     }
 
-    private <T> T waitForDTO(long time, TimeUnit unit,
-            Function<RuntimeDTO,T> tester) {
-        return waitForDTO(time, unit, tester, "Timeout waiting for valid DTO");
+    @Override
+    protected WebserviceServiceRuntime getRuntime() {
+        return runtime;
     }
 
-    private <T> T waitForDTO(long time, TimeUnit unit,
-            Function<RuntimeDTO,T> tester, String msg) {
-        long deadline = System.currentTimeMillis() + unit.toMillis(time);
-        while (System.currentTimeMillis() < deadline) {
-            RuntimeDTO runtimeDTO = runtime.getRuntimeDTO();
-            assertThat(runtimeDTO).as("RuntimeDTO").isNotNull();
-            T result = tester.apply(runtimeDTO);
-            if (result != null) {
-                return result;
-            }
-            Thread.yield();
-        }
-        Assertions.fail(msg + " // current DTO: " + runtime.getRuntimeDTO());
-        return null;
-    }
 }
