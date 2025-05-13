@@ -17,6 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.xml.namespace.QName;
 
+import jakarta.xml.ws.handler.LogicalMessageContext;
 import jakarta.xml.ws.handler.MessageContext;
 import jakarta.xml.ws.handler.soap.SOAPHandler;
 import jakarta.xml.ws.handler.soap.SOAPMessageContext;
@@ -33,8 +34,9 @@ public class TestSoapHandler implements SOAPHandler<SOAPMessageContext> {
 
     @Override
     public boolean handleMessage(SOAPMessageContext context) {
+        boolean outbound = (boolean) context.get(LogicalMessageContext.MESSAGE_OUTBOUND_PROPERTY);
         int msg = handledMessages.incrementAndGet();
-        System.out.println("TestSoapHandler.handleMessage no. " + msg);
+        System.out.println("[" + (outbound ? "outbound" : "inbound") + "] TestSoapHandler.handleMessage no. " + msg);
         return true;
     }
 

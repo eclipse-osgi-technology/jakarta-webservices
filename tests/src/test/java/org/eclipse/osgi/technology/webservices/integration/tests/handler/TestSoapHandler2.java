@@ -12,40 +12,48 @@
  *******************************************************************************/
 package org.eclipse.osgi.technology.webservices.integration.tests.handler;
 
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import jakarta.xml.ws.handler.LogicalHandler;
+import javax.xml.namespace.QName;
+
 import jakarta.xml.ws.handler.LogicalMessageContext;
 import jakarta.xml.ws.handler.MessageContext;
+import jakarta.xml.ws.handler.soap.SOAPHandler;
+import jakarta.xml.ws.handler.soap.SOAPMessageContext;
 
 /**
- * A logical handler that allows inspection of the handled messages
+ * A handler that allows inspection of the messages it handled
  */
-public class TestLogicalHandler implements LogicalHandler<LogicalMessageContext> {
+public class TestSoapHandler2 implements SOAPHandler<SOAPMessageContext> {
 
     /**
-     * A counter of number of messages handled here
+     * The number of messages handled by this handler
      */
     public AtomicInteger handledMessages = new AtomicInteger();
 
     @Override
-    public boolean handleMessage(LogicalMessageContext context) {
+    public boolean handleMessage(SOAPMessageContext context) {
         boolean outbound = (boolean) context.get(LogicalMessageContext.MESSAGE_OUTBOUND_PROPERTY);
         int msg = handledMessages.incrementAndGet();
-        System.out.println(
-                "[" + (outbound ? "outbound" : "inbound") + "] TestLogicalHandler.handleMessage no. " + msg + " ");
+        System.out.println("[" + (outbound ? "outbound" : "inbound") + "] TestSoapHandler2.handleMessage no. " + msg);
         return true;
     }
 
     @Override
-    public boolean handleFault(LogicalMessageContext context) {
-        System.out.println("TestLogicalHandler.handleFault()");
+    public boolean handleFault(SOAPMessageContext context) {
+        System.out.println("TestSoapHandler2.handleFault()");
         return true;
     }
 
     @Override
     public void close(MessageContext context) {
-        System.out.println("TestLogicalHandler.close()");
+        System.out.println("TestSoapHandler2.close()");
+    }
+
+    @Override
+    public Set<QName> getHeaders() {
+        return Set.of();
     }
 
 }

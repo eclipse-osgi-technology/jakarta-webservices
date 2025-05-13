@@ -114,10 +114,19 @@ class EndpointInfo {
             }
             handlerList = handlerMap.values().stream().filter(handlerInfo -> handlerInfo.matches(reference))
                     .sorted(HandlerInfo.SORT_BY_PRIORITY).toList();
+            System.out.println("Handler List is: ");
+            for (HandlerInfo handlerInfo : handlerList) {
+                System.out.println(" Rank " + handlerInfo.getServiceRank() + " / Id " + handlerInfo.getServiceId()
+                        + " = " + handlerInfo.fetchHandler());
+            }
             @SuppressWarnings("rawtypes") // required by API...
             List<Handler> chain = handlerList.stream().map(info -> info.fetchHandler()).filter(Objects::nonNull)
                     .map(Handler.class::cast).toList();
             if (!chain.isEmpty()) {
+                System.out.println("Set Handler Chain:");
+                for (int i = 0; i < chain.size(); i++) {
+                    System.out.println("  " + i + ") " + chain.get(i));
+                }
                 try {
                     endpoint.getBinding().setHandlerChain(chain);
                 } catch (RuntimeException e) {
