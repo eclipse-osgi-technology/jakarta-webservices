@@ -23,5 +23,6 @@
   <packaging>pom</packaging>
   <modules>
     <module>registrar</module>
+    <module>httpwhiteboard</module>
   </modules>
 </project>

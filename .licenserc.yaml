@@ -47,5 +47,6 @@ header:
     - '**/logback-test.xml'
     - '**/*.svg'
     - 'api/**'
+    - '**/httpwhiteboard/src/main/java/org/eclipse/osgi/technology/webservices/httpwhiteboard/wsri/*.java'
 
   comment: always
