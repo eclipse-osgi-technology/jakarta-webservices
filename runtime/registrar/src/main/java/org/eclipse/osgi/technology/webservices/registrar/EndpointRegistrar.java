@@ -176,7 +176,8 @@ public class EndpointRegistrar implements WebserviceServiceRuntime {
      *
      * @param handler handler
      */
-    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC, target = "("
+            + WebserviceWhiteboardConstants.WEBSERVICE_HANDLER_EXTENSION + "=true)")
     public void addHandler(ServiceReference<Handler<? extends MessageContext>> handler) {
         logger.debug("UPDATE handler={}", handler);
         HandlerInfo info = handlerMap.put(handler, new HandlerInfo(handler, context.getBundleContext()));

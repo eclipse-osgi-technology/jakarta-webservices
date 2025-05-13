@@ -234,7 +234,7 @@ public class JakartaWebserviceWhiteboardTestCase {
         bundleContext.registerService(Handler.class, soapHandler,
                 FrameworkUtil.asDictionary(
                         Map.of(WebserviceWhiteboardConstants.WEBSERVICE_HANDLER_FILTER,
-                                filter, WebserviceWhiteboardConstants.WEBSERVICE_HANDLER_EXTENSION, "true",
+                                filter, WebserviceWhiteboardConstants.WEBSERVICE_HANDLER_EXTENSION, true,
                                 HANDLER_TYPE, HANDLER_SOAP)));
         return soapHandler;
     }
@@ -245,7 +245,7 @@ public class JakartaWebserviceWhiteboardTestCase {
         bundleContext.registerService(Handler.class, logicalHandler,
                 FrameworkUtil.asDictionary(
                         Map.of(WebserviceWhiteboardConstants.WEBSERVICE_HANDLER_FILTER, filter,
-                                WebserviceWhiteboardConstants.WEBSERVICE_HANDLER_EXTENSION, "true", HANDLER_TYPE,
+                                WebserviceWhiteboardConstants.WEBSERVICE_HANDLER_EXTENSION, true, HANDLER_TYPE,
                                 HANDLER_LOGICAL)));
         return logicalHandler;
     }
