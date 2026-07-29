@@ -8,3 +8,18 @@
 
 Bundle-SymbolicName: ${project.groupId}.${project.artifactId}
 Bundle-Activator: org.eclipse.osgi.technology.webservices.weaving.WebserviceWeavingActivator
+
+# Compile-time (see runtime/registrar/pom.xml, `provided` scope) but optional at
+# runtime access to Metro/jaxws-rt, used by MetroHandlerChainWorkaround to bypass
+# the RI's re-processing of a handler chain at publish time (see
+# https://github.com/eclipse-ee4j/metro-jax-ws/issues/812). Marked
+# resolution:=optional so this bundle resolves fine even if jaxws-rt (or a
+# different JAX-WS implementation) does not export these packages; the
+# workaround gracefully falls back in that case. Parsing and merging the
+# static @HandlerChain itself (see StaticHandlerChain) does not rely on any of
+# this and works with any JAX-WS implementation.
+Import-Package: com.sun.xml.ws.api;resolution:=optional,\
+	com.sun.xml.ws.api.server;resolution:=optional,\
+	com.sun.xml.ws.server;resolution:=optional,\
+	com.sun.xml.ws.transport.http.server;resolution:=optional,\
+	*

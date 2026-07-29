@@ -491,7 +491,6 @@ public class HandlerRegistrationTests {
      * @throws Exception
      */
     @Test
-    @Disabled
     public void testStaticHandlersOrdering() throws Exception {
         // Register Case Change then Reverse
         Callable<List<ServiceRegistration<?>>> action = () -> {

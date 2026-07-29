@@ -229,14 +229,14 @@ public class EndpointRegistrar implements WebserviceServiceRuntime {
         private EndpointInfo endpointInfo;
 
         public EndpointRegistration(ServiceReference<?> implementorReference) {
-            endpointInfo = new EndpointInfo(implementorReference, context.getBundleContext());
+            endpointInfo = new EndpointInfo(implementorReference, context.getBundleContext(), logger);
         }
 
         synchronized void refresh() {
             if (endpointInfo == null) {
                 return;
             }
-            endpointInfo = new EndpointInfo(endpointInfo.dispose(), context.getBundleContext());
+            endpointInfo = new EndpointInfo(endpointInfo.dispose(), context.getBundleContext(), logger);
             endpointInfo.publishEndpoint(handlerMap, contextMap, endpointPublisherMap);
         }
 

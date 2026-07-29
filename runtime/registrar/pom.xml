@@ -51,5 +51,16 @@
       <artifactId>org.osgi.namespace.service</artifactId>
       <version>1.0.0</version>
     </dependency>
+    <!-- Compile-only: used by MetroHandlerChainWorkaround to bypass a Metro/jaxws-rt
+         defect (see https://github.com/eclipse-ee4j/metro-jax-ws/issues/812). Not
+         bundled or required at runtime: the corresponding packages are imported as
+         resolution:=optional in bnd.bnd, so the workaround gracefully degrades if
+         jaxws-rt (or a different JAX-WS implementation) is not present/compatible. -->
+    <dependency>
+      <groupId>com.sun.xml.ws</groupId>
+      <artifactId>jaxws-rt</artifactId>
+      <version>4.0.3</version>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
 </project>

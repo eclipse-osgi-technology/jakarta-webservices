@@ -28,6 +28,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.dto.ServiceReferenceDTO;
 import org.osgi.service.component.propertytypes.ServiceRanking;
+import org.osgi.service.log.Logger;
 import org.osgi.service.webservice.runtime.dto.EndpointDTO;
 import org.osgi.service.webservice.runtime.dto.FailedEndpointDTO;
 import org.osgi.service.webservice.runtime.dto.HandlerDTO;
@@ -39,6 +40,7 @@ class EndpointInfo {
 
     private final ServiceReference<?> reference;
     private final BundleContext bundleContext;
+    private final Logger logger;
     private Exception lookupError;
     private Exception createError;
     private RuntimeException handlerError;
@@ -49,9 +51,10 @@ class EndpointInfo {
     private BundleEndpointContext endpointContext;
     private PublishedEndpoint publishedEndpoint;
 
-    EndpointInfo(ServiceReference<?> reference, BundleContext bundleContext) {
+    EndpointInfo(ServiceReference<?> reference, BundleContext bundleContext, Logger logger) {
         this.reference = reference;
         this.bundleContext = bundleContext;
+        this.logger = logger;
     }
 
     synchronized ServiceReference<?> dispose() {
@@ -105,9 +108,9 @@ class EndpointInfo {
     synchronized Endpoint createEndpoint(Map<ServiceReference<?>, HandlerInfo> handlerMap,
             Map<Bundle, BundleEndpointContext> contextMap) {
         if (endpoint == null) {
+            Object implementor;
             try {
-                endpoint = Endpoint.create(Objects.requireNonNull(fetchImplementor()));
-                endpoint.setProperties(getServiceProperties());
+                implementor = Objects.requireNonNull(fetchImplementor());
             } catch (RuntimeException e) {
                 createError = e;
                 return null;
@@ -117,12 +120,65 @@ class EndpointInfo {
             @SuppressWarnings("rawtypes") // required by API...
             List<Handler> chain = handlerList.stream().map(info -> info.fetchHandler()).filter(Objects::nonNull)
                     .map(Handler.class::cast).toList();
-            if (!chain.isEmpty()) {
+
+            Class<?> implClass = implementor.getClass();
+            @SuppressWarnings("rawtypes")
+            List<Handler> mergedChain = chain;
+            boolean hasStaticChain = false;
+            if (!chain.isEmpty() && StaticHandlerChain.isPresent(implClass)) {
+                // We parse and merge the static @HandlerChain ourselves (independent of the
+                // JAX-WS implementation in use) so the merged chain is available regardless
+                // of whether the Metro-specific workaround below is applicable. This is
+                // needed because Metro/jaxws-rt silently discards a handler chain set before
+                // publish() whenever the implementor also declares a static @HandlerChain
+                // (see https://github.com/eclipse-ee4j/metro-jax-ws/issues/812).
                 try {
-                    endpoint.getBinding().setHandlerChain(chain);
+                    List<Handler> staticChain = StaticHandlerChain.parse(implClass);
+                    if (!staticChain.isEmpty()) {
+                        mergedChain = StaticHandlerChain.merge(staticChain, handlerList);
+                        hasStaticChain = true;
+                    }
+                } catch (ReflectiveOperationException | java.io.IOException
+                        | javax.xml.parsers.ParserConfigurationException | org.xml.sax.SAXException
+                        | RuntimeException e) {
+                    logger.warn(
+                            "Could not parse the static @HandlerChain declared on {}. The handler chain of this "
+                                    + "endpoint may be incomplete.",
+                            reference, e);
+                }
+            }
+
+            if (hasStaticChain) {
+                // Try to make the merged chain actually take effect at publish time via the
+                // Metro-specific workaround; if that isn't possible we fall back to the
+                // best-effort behaviour below.
+                try {
+                    endpoint = MetroHandlerChainWorkaround.tryCreate(implementor, mergedChain);
+                    endpoint.setProperties(getServiceProperties());
+                } catch (RuntimeException | LinkageError e) {
+                    logger.warn(
+                            "Could not apply the Metro static handler chain workaround for {} (see metro-jax-ws#812). "
+                                    + "The handler chain of this endpoint may be incomplete because a static "
+                                    + "@HandlerChain is declared alongside dynamic whiteboard handlers.",
+                            reference, e);
+                    endpoint = null;
+                }
+            }
+            if (endpoint == null) {
+                try {
+                    endpoint = Endpoint.create(implementor);
+                    endpoint.setProperties(getServiceProperties());
                 } catch (RuntimeException e) {
-                    handlerError = e;
+                    createError = e;
                     return null;
+                }
+                if (!mergedChain.isEmpty()) {
+                    try {
+                        endpoint.getBinding().setHandlerChain(mergedChain);
+                    } catch (RuntimeException e) {
+                        handlerError = e;
+                        return null;
+                    }
                 }
             }
             endpointContext = contextMap.computeIfAbsent(reference.getBundle(), BundleEndpointContext::new);
